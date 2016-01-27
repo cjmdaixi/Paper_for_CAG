@@ -44,20 +44,33 @@ hex mesh; sheet inflation; mesh optimization; mesh modification; mesh matching
 \section{Introduction}
 \label{sec:intro}
 
-In finite element analysis, hex meshes are usually preferred to tetrahedral meshes due to higher accuracy, faster convergence and lighter storage\cite{Shepherd:2007tg,Shepherd:2008dg}. Therefore, many researchers have been committed to the research of hex meshing for decades. Although there has been tremendous progress in this area, perfect solutions are still eluding for hex mesh generation, modification and topological optimization. The main reason for the difficulties is the inherent global connectivity which makes any local modification often inevitably propagate to the whole mesh\cite{Murdoch:1997fy, Tautges:2003vt, Ledoux:2009cg, Ramos:2014jq}.
-
-In recent years, sheet operations attract more and more attention and have been applied in different situations for their effectivity in dealing with global structures. The most common sheet operations include sheet inflation, sheet extraction, dicing and column collapse. Unlike other operations that only deal with existing sheets, sheet inflation can be utilized to create new ones with various shapes and topologies, making it irreplaceable in hex mesh generation, especially in topological modification and optimization. The common procedures of sheet inflation are shown in Fig. \ref{fig:sheet_proc}.
+In finite element analysis, hexahedral meshes are usually preferred to tetrahedral meshes due to higher accuracy, faster convergence and lighter storage\cite{Shepherd:2007tg,Shepherd:2008dg}. Therefore, many researchers have been committed to the research of hex meshing for decades. Although there has been tremendous progress in this area, perfect solutions are still eluding for hex mesh generation, modification and topological optimization. The main reason for the difficulties is the inherent global connectivity which makes any local modification often inevitably propagate to the whole mesh\cite{Murdoch:1997fy, Tautges:2003vt, Ledoux:2009cg, Ramos:2014jq}. Figure \ref{fig:global_structure} shows an example that even though we want to make small local modification as adding one new quad to the boundary of the hex mesh(Fig. \ref{fig:global_structure}b), a circle of quads on the boundary(Fig. \ref{fig:global_structure}c) as well as a set of hex have to be generated in order to keep the hex mesh valid(Fig. \ref{fig:global_structure}d). The dual structures, which contribute to the global connectivity of hex meshes, are called sheets. The set of hex in Fig. \ref{fig:global_structure}d is actually a sheet.
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[height=3.5cm]{figures/sheet_proc.png}
-\caption{Sheet inflation procedures: (a) the original hex mesh; (b) the quad set; (c) the new sheet inflated from the quad set.}
-\label{fig:sheet_proc}
+\includegraphics[width=9cm]{rev_figures/global_structure.png}
+\caption{An example of local modification resulting in global change: (a) the original hex mesh; (b) local modification by adding a quad on the mesh boundary; (c) a circle of quads on the mesh boundary have to be added; (d) a set of hexahedra have to be added.}
+\label{fig:global_structure}
 \end{center}
 \end{figure}
 
+More specifically, starting from one mesh edge, we recursively get all its topologically parallel mesh edges. All of these mesh edges along with the adjacent hex define a sheet. In addition to its primal representation as a composition of vertices, edges, faces and hexahedra, a hex mesh can also be seen as a set of intersecting sheets, known as Spatial Twisted Continuum\cite{Murdoch:1997fy}.
 
-Due to its versatile ability to create various types of sheets with different shapes and topologies, it is critical for sheet inflation to be controllable in order to meet various mesh modification demands. In practice, the controllability can be fulfilled by allowing the user to setup constraints on the mesh to guide the inflation process. These constraints are usually specified by a set of boundary edges and a set of hexahedra. The former determines the positions where the new sheet should appear on the mesh boundary, and the latter delimits the region where the new sheet can propagate. As shown in Fig. \ref{fig:sheet_proc_constr}(b), a set of boundary edges(green) and a set of hex(yellow) are specified to control the shape and position of the new sheet. One satisfactory sheet is shown in Fig. \ref{fig:sheet_proc_constr}(d).
+Therefore, as a set of operations that directly and effectively deal with the sheets, sheet operations attract more and more attention in recent years. The most common sheet operations include pillowing\cite{Mitchell:1995wa}, dicing\cite{melander1997generation}, column collapse\cite{Staten:2009bo}, sheet extraction\cite{Borden:2002hs,Staten:2009bo} and sheet inflation\cite{Ledoux:2009jz,staten2010sheet,Staten:2009bo}. 
+
+\begin{figure*}[htbp]
+\begin{center}
+\includegraphics[width=17cm]{rev_figures/dual_operations.png}
+\caption{Common dual operations: pillowing, dicing, column collapse, sheet extraction and sheet inflation.}
+\label{fig:dual_operations}
+\end{center}
+\end{figure*}
+
+Figure \ref{fig:dual_operations} shows the process of these dual operations. Pillowing takes a hex set, which is called shrinking set, as input, and then shrinks the hex set and fills the gap with new hex between the shrinking set and the rest of the mesh. Dicing duplicates a sheet by splitting its topologically parallel mesh edges that defines the sheet. Column collapse can change the sheets' shape or topologies by collapsing the column, which is the hex set where one sheet intersects with itself or another sheet. Sheet extraction extracts the sheet by merging the two mesh nodes on each of the mesh edges that define the sheet, resulting a continuous set of quads.
+
+Sheet inflation can be seen as the reverse of sheet extraction, which "inflates" a continuous quad set into a new sheet. The quad set is critical for sheet inflation because it determines the position, shape and topology of the sheet to be generated. Since topologically any sheet can be extracted (though sometimes extraction may not be possible due to geometrical restrictions), sheet inflation has the potential ability to create any kind of sheets, provided that a suitable quad set are determined.
+
+Due to the versatility to create various sheets, it is very promising to utilize sheet inflation in many mesh modification scenarios. One common scenario is to use sheet inflation to locally change the mesh topology, especially the boundary topology. To meet the modification requirements, new sheets need to be created at the specified position within a delimited region. As the quad set plays a key role for sheet inflation, the main difficulty to achieve this is how to construct a qualified quad set under the user's constraints. In practice, these constraints are usually specified by a set of boundary edges and a set of hexahedra. The former determines the positions where the new sheet should appear on the mesh boundary, and the latter delimits the region where the new sheet can propagate. For example, in mesh matching, an algorithm that converts non-conforming interfaces to conforming ones\cite{staten2010sheet,Staten:2009bo, Chen:2015kf}, sheet inflation is required to locally change the topologies on the interfaces. Figure \ref{} shows one sheet inflation in mesh matching. The mesh edges (red in Fig. \ref{}a) is determined according to the position of the sheet on the other side of the interface, and the hex set (green in Fig. \ref{}a) delimits the modifiable region. The new sheet should be created exactly at the position specified by the mesh edges in order to match with the sheet on the other side, while not exceeding the delimited region in order to guarantee the modification to the hex mesh is local. One acceptable quad set and the new sheet are shown in Fig. \ref{}c and Fig. \ref{}d respectively.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -75,7 +88,6 @@ Due to its versatile ability to create various types of sheets with different sh
 \label{fig:overview}
 \end{center}
 \end{figure*}
-As seen in Fig. \ref{fig:sheet_proc} and Fig. \ref{fig:sheet_proc_constr}, the quad set is critical to sheet inflation since it determines both the position and topology of the sheet to be inflated. Therefore, to achieve the qualified sheet inflation, the main task, which is also the most difficult, is to find an internal quad set that satisfies the constraints. As shown in Fig. \ref{fig:sheet_proc_constr}, after the user specifies the constraints in Fig. \ref{fig:sheet_proc_constr}(b), the most critical step to generate the qualified sheet is to determine the internal quad set within the specified hex set that intersects with the mesh boundary exactly at the specified edges, as shown in Fig. \ref{fig:sheet_proc_constr}(c).
 
 In recognizing the importance of sheet inflation, many researchers have been investigating algorithms for decades and have achieved great progress. Mitchell et al. proposed the Pillowing algorithm to deal with the doublet problem\cite{Mitchell:1995wa}. This algorithm involves inflating a new sheet guided by a hex set called shrinking set. Its simplicity and effectiveness makes Pillowing prevalent in mesh modification, especially in mesh quality improvement. Although it can be adapted to satisfy simple constraints, the Pillowing lacks the ability to generate complex sheets such as self-intersecting sheets.
 
@@ -434,7 +446,7 @@ We implement our approach in C++ on a 32-bit Windows 7 platform, using Visual St
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Complex Sheets Generation for Mesh Matching}
 \label{sec:mesh_matching}
-Mesh matching is an algorithm to convert non-conforming interfaces to conforming ones by sheet operations\cite{Staten2010d,Chen:2015kf}. Our approach in this paper can be used in mesh matching to locally generate complex sheets that intersect themselves multiple times, which cannot be done in these previous works. In Fig. \ref{fig:exam1_input}, there is an unmatched chord on the interface of hex mesh 2 in Fig. \ref{fig:exam1_input}(b). A new sheet needs to be created to match it on hex mesh 1 under the constraints shown in Fig. \ref{fig:exam1_input}a ($H$ is the volumetric constraints).
+Mesh matching is an algorithm to convert non-conforming interfaces to conforming ones by sheet operations\cite{Chen:2015kf,Staten2010d}. Our approach in this paper can be used in mesh matching to locally generate complex sheets that intersect themselves multiple times, which cannot be done in these previous works. In Fig. \ref{fig:exam1_input}, there is an unmatched chord on the interface of hex mesh 2 in Fig. \ref{fig:exam1_input}(b). A new sheet needs to be created to match it on hex mesh 1 under the constraints shown in Fig. \ref{fig:exam1_input}a ($H$ is the volumetric constraints).
 
 \begin{figure}[htbp]
 \begin{center}
