@@ -70,13 +70,23 @@ Figure \ref{fig:dual_operations} shows the process of these dual operations. Pil
 
 Sheet inflation can be seen as the reverse of sheet extraction, which "inflates" a continuous quad set into a new sheet. The quad set is critical for sheet inflation because it determines the position, shape and topology of the sheet to be generated. Since topologically any sheet can be extracted (though sometimes extraction may not be possible due to geometrical restrictions), sheet inflation has the potential ability to create any kind of sheets, provided that a suitable quad set are determined.
 
-Due to the versatility to create various sheets, it is very promising to utilize sheet inflation in many mesh modification scenarios. One common scenario is to use sheet inflation to locally change the mesh topology, especially the boundary topology. To meet the modification requirements, new sheets need to be created at the specified position within a delimited region. As the quad set plays a key role for sheet inflation, the main difficulty to achieve this is how to construct a qualified quad set under the user's constraints. In practice, these constraints are usually specified by a set of boundary edges and a set of hexahedra. The former determines the positions where the new sheet should appear on the mesh boundary, and the latter delimits the region where the new sheet can propagate. For example, in mesh matching, an algorithm that converts non-conforming interfaces to conforming ones\cite{staten2010sheet,Staten:2009bo, Chen:2015kf}, sheet inflation is required to locally change the topologies on the interfaces. Figure \ref{} shows one sheet inflation in mesh matching. The mesh edges (red in Fig. \ref{}a) is determined according to the position of the sheet on the other side of the interface, and the hex set (green in Fig. \ref{}a) delimits the modifiable region. The new sheet should be created exactly at the position specified by the mesh edges in order to match with the sheet on the other side, while not exceeding the delimited region in order to guarantee the modification to the hex mesh is local. One acceptable quad set and the new sheet are shown in Fig. \ref{}c and Fig. \ref{}d respectively.
+Due to the versatility to create various sheets, it is very promising to utilize sheet inflation in many mesh modification scenarios. One common scenario is to use sheet inflation to locally change the mesh topology, especially the boundary topology. To meet the modification requirements, new sheets need to be created at the specified position within a delimited region. As the quad set plays a key role for sheet inflation, the main difficulty to achieve this is how to construct a qualified quad set under the user's constraints. In practice, these constraints are usually specified by a set of boundary edges and a set of hexahedra. The former determines the positions where the new sheet should appear on the mesh boundary, and the latter delimits the region where the new sheet can propagate. 
+
+Figure \ref{fig:intro_high_val} shows an example when mesh modification on the boundary is required. Node valences (the number of adjacent edges of a node) and edge valences (the number of adjacent faces of an edge) are important quality metrics for quad meshes and hex meshes respectively, and high valences usually lead to poor mesh quality  \cite{anderson2009automatic,canann1998topological,millerusing,Staten2010d}. Although valences of 5 are relatively acceptable, valences equal to or higher than 6 are usually considered to be undesirable. The hex mesh (Fig. \ref{fig:intro_high_val}a) contains one boundary node whose valence is 6. This high valence can be reduced by splitting the node into two nodes with lower valences as shown in Fig. \ref{fig:intro_high_val}b. 
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[height=3cm]{figures/sheet_proc_constr.png}
-\caption{Sheet inflation under user-specified constraints: (a) the original hex mesh; (b) the user-specified boundary edges (green) and hex set (yellow); (c) the internal quad set; (d) the new sheet.}
-\label{fig:sheet_proc_constr}
+\includegraphics[width=8.5cm]{rev_figures/intro_high_val.png}
+\caption{An example when boundary modification is required: (a) the hex mesh with a high-valence node; (b) the high valence is reduced by splitting the node into two nodes.}
+\label{fig:intro_high_val}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{rev_figures/intro_high_val_whole.png}
+\caption{Reducing high valence by non-localized sheet inflation : (a) selected mesh edges where new sheet needs inflating; (b) the quad set for sheet inflation without local consideration; (c) the new sheet; (d) the high valence is improved.}
+\label{fig:intro_high_val_whole}
 \end{center}
 \end{figure}
 
