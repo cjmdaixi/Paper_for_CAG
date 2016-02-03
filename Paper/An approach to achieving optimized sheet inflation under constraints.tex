@@ -38,13 +38,13 @@ hex mesh; sheet inflation; mesh optimization; mesh modification; mesh matching
 
 \end{frontmatter}
 
-\linenumbers
+%%\linenumbers
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
 \label{sec:intro}
 
-In finite element analysis, hexahedral meshes are usually preferred to tetrahedral meshes due to higher accuracy, faster convergence and lighter storage\cite{Shepherd:2007tg,Shepherd:2008dg}. Therefore, many researchers have been committed to the research of hex meshing for decades. Although there has been tremendous progress in this area, perfect solutions are still eluding for hex mesh generation, modification and topological optimization. The main reason for the difficulties is the inherent global connectivity which makes any local modification often inevitably propagate to the whole mesh\cite{Murdoch:1997fy, Tautges:2003vt, Ledoux:2009cg, Ramos:2014jq}. Figure \ref{fig:global_structure} shows an example that even though we want to make small local modification as adding one new quad to the boundary of the hex mesh(Fig. \ref{fig:global_structure}b), a circle of quads on the boundary(Fig. \ref{fig:global_structure}c) as well as a set of hex have to be generated in order to keep the hex mesh valid(Fig. \ref{fig:global_structure}d). The dual structures, which contribute to the global connectivity of hex meshes, are called sheets. The set of hex in Fig. \ref{fig:global_structure}d is actually a sheet.
+In finite element analysis, hexahedral meshes are usually preferred to tetrahedral meshes due to higher accuracy, faster convergence and lighter storage\cite{Shepherd:2007tg,Shepherd:2008dg}. Therefore, many researchers have been committed to the research of hex meshing for decades. Although there has been tremendous progress in this area, perfect solutions are still eluding for hex mesh generation, modification and topological optimization. The main reason for the difficulties is that local modifications often inevitably propagate to the whole mesh due to the inherent global connectivity\cite{Murdoch:1997fy, Tautges:2003vt, Ledoux:2009cg, Ramos:2014jq}. Figure \ref{fig:global_structure} shows an example that even though we want to make small local modification as adding one new quad to the boundary of the hex mesh(Fig. \ref{fig:global_structure}(b)), a circle of quads on the boundary(Fig. \ref{fig:global_structure}(c)) as well as a set of hex have to be generated in order to keep the hex mesh valid(Fig. \ref{fig:global_structure}(d)). The dual structures, which contribute to the global connectivity of hex meshes, are called sheets. The set of hex in Fig. \ref{fig:global_structure}(d) is actually a sheet.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -60,7 +60,7 @@ Therefore, as a set of operations that directly and effectively deal with the sh
 
 \begin{figure*}[htbp]
 \begin{center}
-\includegraphics[width=17cm]{rev_figures/dual_operations.png}
+\includegraphics[width=14cm]{rev_figures/dual_operations.png}
 \caption{Common dual operations: pillowing, dicing, column collapse, sheet extraction and sheet inflation.}
 \label{fig:dual_operations}
 \end{center}
@@ -68,11 +68,11 @@ Therefore, as a set of operations that directly and effectively deal with the sh
 
 Figure \ref{fig:dual_operations} shows the process of these dual operations. Pillowing takes a hex set, which is called shrinking set, as input, and then shrinks the hex set and fills the gap with new hex between the shrinking set and the rest of the mesh. Dicing duplicates a sheet by splitting its topologically parallel mesh edges that defines the sheet. Column collapse can change the sheets' shape or topologies by collapsing the column, which is the hex set where one sheet intersects with itself or another sheet. Sheet extraction extracts the sheet by merging the two mesh nodes on each of the mesh edges that define the sheet, resulting a continuous set of quads.
 
-Sheet inflation can be seen as the reverse of sheet extraction, which "inflates" a continuous quad set into a new sheet. The quad set is critical for sheet inflation because it determines the position, shape and topology of the sheet to be generated. Since topologically any sheet can be extracted (though sometimes extraction may not be possible due to geometrical restrictions), sheet inflation has the potential ability to create any kind of sheets, provided that a suitable quad set are determined.
+Sheet inflation can be seen as the reverse of sheet extraction, which "inflates" a continuous quad set into a new sheet. As shown in Fig. \ref{fig:dual_operations}, it splits the nodes, edges and quads on the quad set, and then form new hexahedra by connecting corresponding the new nodes. There fore, the quad set is critical for sheet inflation because it determines the position, shape and topology of the sheet to be generated. Since topologically any sheet can be extracted (though sometimes extraction may not be possible due to geometrical restrictions), sheet inflation has the potential ability to create any kind of sheets, provided that a suitable quad set are determined.
 
 Due to the versatility to create various sheets, it is very promising to utilize sheet inflation in many mesh modification scenarios. One common scenario is to use sheet inflation to locally change the mesh topology, especially the boundary topology. To meet the modification requirements, new sheets need to be created at the specified position within a delimited region. As the quad set plays a key role for sheet inflation, the main difficulty to achieve this is how to construct a qualified quad set under the user's constraints. In practice, these constraints are usually specified by a set of boundary edges and a set of hexahedra. The former determines the positions where the new sheet should appear on the mesh boundary, and the latter delimits the region where the new sheet can propagate. 
 
-Figure \ref{fig:intro_high_val} shows an example when mesh modification on the boundary is required. Node valences (the number of adjacent edges of a node) and edge valences (the number of adjacent faces of an edge) are important quality metrics for quad meshes and hex meshes respectively, and high valences usually lead to poor mesh quality  \cite{anderson2009automatic,canann1998topological,millerusing,Staten2010d}. Although valences of 5 are relatively acceptable, valences equal to or higher than 6 are usually considered to be undesirable. The hex mesh (Fig. \ref{fig:intro_high_val}a) contains one boundary node whose valence is 6. This high valence can be reduced by splitting the node into two nodes with lower valences as shown in Fig. \ref{fig:intro_high_val}b. 
+Figure \ref{fig:intro_high_val} shows an example when such constrained sheet inflation is required. Node valences (the number of adjacent edges of a node) and edge valences (the number of adjacent faces of an edge) are important quality metrics for quad meshes and hex meshes respectively, and high valences usually lead to poor mesh quality  \cite{anderson2009automatic,canann1998topological,millerusing,Staten2010d}. Although valences of 5 are relatively acceptable, valences equal to or higher than 6 are usually considered to be undesirable. The hex mesh (Fig. \ref{fig:intro_high_val}(a)) contains one boundary node whose valence is 6. This high valence can be reduced by splitting the node into two nodes with lower valences as shown in Fig. \ref{fig:intro_high_val}(b). 
 
 \begin{figure}[htbp]
 \begin{center}
@@ -82,48 +82,64 @@ Figure \ref{fig:intro_high_val} shows an example when mesh modification on the b
 \end{center}
 \end{figure}
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{rev_figures/intro_high_val_whole.png}
-\caption{Reducing high valence by non-localized sheet inflation : (a) selected mesh edges where new sheet needs inflating; (b) the quad set for sheet inflation without local consideration; (c) the new sheet; (d) the high valence is improved.}
-\label{fig:intro_high_val_whole}
-\end{center}
-\end{figure}
-
+A new sheet needs to be created due to the global connectivity of hex meshes. To specify the position of the new sheet, two mesh edges adjacent to the high-valence node are selected as constraints(Fig. \ref{fig:intro_high_val_whole}(a)). Then a quad set is constructed (Fig. \ref{fig:intro_high_val_whole}(b)) and the new sheet is inflated (Fig. \ref{fig:intro_high_val_whole}(c))). The high valence has been reduced as shown in Fig. \ref{fig:intro_high_val_whole}(e).
 
 \begin{figure*}[htbp]
 \begin{center}
-\includegraphics[width=18cm]{figures/overview2.png}
-\caption{Overview of the approach.}
-\label{fig:overview}
+\includegraphics[width=12cm]{rev_figures/intro_high_val_whole.png}
+\caption{Reducing high valence by non-localized sheet inflation : (a) selected mesh edges where new sheet needs inflating; (b) the quad set for sheet inflation without local consideration; (c) the new sheet; (d) the high valence is improved.}
+\label{fig:intro_high_val_whole}
 \end{center}
 \end{figure*}
 
-In recognizing the importance of sheet inflation, many researchers have been investigating algorithms for decades and have achieved great progress. Mitchell et al. proposed the Pillowing algorithm to deal with the doublet problem\cite{Mitchell:1995wa}. This algorithm involves inflating a new sheet guided by a hex set called shrinking set. Its simplicity and effectiveness makes Pillowing prevalent in mesh modification, especially in mesh quality improvement. Although it can be adapted to satisfy simple constraints, the Pillowing lacks the ability to generate complex sheets such as self-intersecting sheets.
+The quad set in Fig. \ref{fig:intro_high_val_whole}(b) traverses a large part of the hex mesh since no region constraints are specified. The sheet inflation based on this quad set will impact almost the whole mesh. To localize the sheet inflation, region constraints are specified via selecting a set of hexahedra (yellow in Fig. \ref{fig:intro_high_val_localized_inf}(a)). Then the quad set is constructed within that region (Fig. \ref{fig:intro_high_val_localized_inf}(b)). The creation of the new sheet will impact a limited part of the hex mesh compared to Fig. \ref{fig:intro_high_val_whole}(d).
+
+\begin{figure*}[htbp]
+\begin{center}
+\includegraphics[width=15cm]{rev_figures/intro_high_val_localized_inf.png}
+\caption{Reducing high valence by non-localized sheet inflation : (a) selected mesh edges where new sheet needs inflating; (b) the quad set for sheet inflation without local consideration; (c) the new sheet; (d) the high valence is improved.}
+\label{fig:intro_high_val_localized_inf}
+\end{center}
+\end{figure*}
+
+In recognizing the importance of sheet inflation, many researchers have been investigating algorithms for decades and have achieved great progress. Mitchell et al. proposed the Pillowing algorithm to deal with the doublet problem\cite{Mitchell:1995wa}.  Its simplicity and effectiveness makes Pillowing prevalent in mesh modification, especially in mesh quality improvement. Although it can be adapted to satisfy simple constraints, the Pillowing lacks the ability to generate complex sheets such as self-intersecting sheets.
 
 Suzuki et al. introduced a method to construct interior sheet surfaces when the boundary dual cycles are given\cite{Suzuki:2010hn}. They used this method to firstly construct dual structures and then deduce the primal hex meshes from these dual structures. While in the paper they illustrated the topological structures of sheet surfaces in the dual space, particularly self-intersecting sheet surfaces, they didn't mention how to determine the quad set and generate the corresponding sheets on the primal hex mesh.
 
 Staten et al. proposed the General Sheet Inflation method which explained in detail how to do sheet inflation on hex meshes when boundary mesh edges are specified\cite{Staten:2009bo}. This method can create normal, self-touching and self-intersecting sheets. However, determining the quad sets for sheet inflation in this method seems to rely on the sweeping structures of the mesh. Meanwhile it is not clear whether the method can create self-intersecting sheets within a local region.
 
+Sheet inflation is an enhanced and more general version of the classic pillowing. Pillowing actually can be seen as a special form of sheet inflation whose quad set is determined by the shared quad set between the shrinking set and the rest of the mesh.
+
 Chen et al. proposed a new approach to inflate sheets when conducting mesh matching on complex interfaces\cite{Chen:2015kf}. This method firstly constructs the boundary loop of the quad set, and then determines the interior quad set. Although it can locally generate self-intersecting sheets under constraints, it allows the sheets to intersect themselves once at most. Meanwhile, the optimization method it applies on quad set cannot guarantee the quality improvement.
 
-Despite these achievements, to inflate complex sheets under various constraints, especially to generate self-intersecting sheets within a local region, is still very difficult. Furthermore, how to assure the mesh quality for complex sheet inflation is also a challenging problem. In this paper we propose a new approach to achieving complex sheet inflation. By firstly determining the boundary loop and then utilizing the max-flow-min-cut algorithm, we construct an initial quad set that fulfills all the constraints. By applying a chord-based optimization method, we improve the quality of the quad set and thus the mesh quality after sheet inflation is guaranteed. 
+Despite these achievements, to inflate complex sheets under various constraints, especially to generate self-intersecting sheets within a local region, is still very difficult. However, in many situations it is needed to locally create self-intersecting sheets. For example in Fig. \ref{fig:intro_int_required}(a), when the node's valence is 7, splitting method in Fig. \ref{fig:intro_high_val}(b) will not effectively reduce the high valence since one of the new nodes still has a high valence of 6 (Fig. \ref{fig:intro_high_val}(b)). Instead of selecting two adjacent edges, four adjacent edges are selected and the node is splitted into four nodes as shown in Fig. \ref{fig:intro_high_val}(c), which requires a self-intersecting sheet be generated. Furthermore, how to assure the mesh quality for complex sheet inflation is also a challenging problem. 
+
+In this paper we propose a new approach to achieving complex sheet inflation. For a quad set, the mesh edges where it intersects with the mesh boundary form the quad set's boundary loop/loops. By firstly determining the boundary loop and then utilizing the max-flow-min-cut algorithm, we construct an initial quad set that fulfills all the constraints. By applying a chord-based optimization method, we improve the quality of the quad set and thus the mesh quality after sheet inflation is guaranteed. 
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8.5cm]{rev_figures/intro_int_required.png}
+\caption{An example when a self-intersecting sheet is required to be generated: (a) the hex mesh with a high-valence node; (b) the high valence is reduced by splitting the node into four nodes.}
+\label{fig:intro_int_required}
+\end{center}
+\end{figure}
 
 The rest of this paper is organized as below: we will show the outline of the approach in the second chapter, explain the procedures of constructing the boundary loops of quad sets in the third chapter, provide the details of the determination and optimization of the initial quad set in the fourth and fifth chapters respectively, and then give some results in the sixth chapter and list conclusions and future work in the last chapter.
-
-\begin{figure*}[htbp]
-\begin{center}
-\includegraphics[width=15cm]{figures/compo_loop_prop.png}
-\caption{Characteristics of valid boundary loops: (a) a non-self-intersecting boundary loop; (b) the non-self-intersecting quad set; (c) two hex sets separated by the quad set; (d) two boundary quad sets separated by the boundary loop; (e) the new non-self-intersecting sheet; (f) a self-intersecting boundary loop; (g) the self-intersecting quad set; (h) three hex sets separated by the quad set; (i) four boundary quad sets separated by the boundary loop; (j) the new self-intersecting sheet.}
-\label{fig:loop_prop}
-\end{center}
-\end{figure*}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Overview of the Approach}
 \label{sec:algo_overview}
 
-In this paper, an approach is proposed to achieving complex sheet inflation under various constraints while assuring the mesh quality. It takes a set of boundary mesh edges and a set of hexahedra as input. The edges and hexahedra specify the boundary position and local region of the sheet. Under these constraints, it constructs a qualified quad set and then creates the new sheet as output. To avoid the difficulty of determining a qualified inflatable quad set directly, our approach involves three major steps: (a) determining the boundary loops for the quad set that satisfy the boundary constraints; (b) constructing the initial quad set based on the boundary loops; (c) optimizing the initial quad set. Figure \ref{fig:overview} shows the overview of our approach.
+In this paper, an approach is proposed to achieving complex sheet inflation under various constraints while assuring the mesh quality. It takes a set of boundary mesh edges and a set of hexahedra as input. The edges and hexahedra specify the boundary position and local region of the sheet. Under these constraints, it constructs a qualified quad set and then creates the new sheet as output. To avoid the difficulty of determining a qualified inflatable quad set directly, our approach involves three major steps: (1) determining the boundary loops for the quad set that satisfy the boundary constraints; (2) constructing the initial quad set based on the boundary loops; (3) optimizing the initial quad set. Figure \ref{fig:overview} shows the overview of our approach.
+
+
+\begin{figure*}[htbp]
+\begin{center}
+\includegraphics[width=16cm]{figures/overview2.png}
+\caption{Flowchart of the optimized complex sheet inflation.}
+\label{fig:overview}
+\end{center}
+\end{figure*}
 
 Our approach needs to solve two critical problems. The first problem is how to construct the valid boundary loop and initial quad set satisfying various boundary constraints. Boundary constraint specified by the user can be a loop or just a set of edges, be non-self-intersecting or intersecting itself more than once. The second problem is how to effectively optimize the initial quad set when a global optimal result can hardly be reached.
 
@@ -140,23 +156,15 @@ In the following sections specific details of the major steps are provided.
 \label{sec:det_bound_loops}
 It is quite difficult to find a qualified quad set satisfying all the constraints directly. The quad set's boundary loop is accordingly constructed at first. This section firstly discusses the characteristics of valid boundary loops and quad sets, and then presents the method to construct a valid boundary loop under the boundary constraints.
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{figures/flow_det_loop.png}
-\caption{Flowchart of the determination of boundary loops.}
-\label{fig:flow_det_loop}
-\end{center}
-\end{figure}
+By observation of the structures of valid quad sets and the process of sheet inflation, an inflatable quad set and its boundary loop have two characteristics:
 
 \begin{figure*}[htbp]
 \begin{center}
-\includegraphics[width=17cm]{figures/pair_patterns.png}
-\caption{Two local templates for pairing intersecting nodes: (a) the 1st local intersecting structure of the quad set; (b) int-4-hex-sets around the 1st local intersecting structure of the quad set; (c) the associated local structure of the boundary loop; (d) the 1st template; (e) intersecting nodes are resolved after pairing; (f) the 2nd local intersecting structure of the quad set; (g) int-4-hex-sets around the 2nd local intersecting structure of the quad set; (h) the associated local structure of the boundary loop; (i) the 2nd template; (j) intersecting nodes are resolved after pairing.}
-\label{fig:int_pair_tpl}
+\includegraphics[width=15cm]{figures/compo_loop_prop.png}
+\caption{Characteristics of valid boundary loops: (a) a non-self-intersecting boundary loop; (b) the non-self-intersecting quad set; (c) two hex sets separated by the quad set; (d) two boundary quad sets separated by the boundary loop; (e) the new non-self-intersecting sheet; (f) a self-intersecting boundary loop; (g) the self-intersecting quad set; (h) three hex sets separated by the quad set; (i) four boundary quad sets separated by the boundary loop; (j) the new self-intersecting sheet.}
+\label{fig:loop_prop}
 \end{center}
 \end{figure*}
-
-By observation of the structures of valid quad sets and the process of sheet inflation, an inflatable quad set and its boundary loop have two characteristics:
 
 \begin{enumerate}
 \item An inflatable quad set separates its local hex set into $2+N$ subsets, where $N$ stands for how many times the quad set intersects itself. For example, the non-self-intersecting quad set in Fig. \ref{fig:loop_prop}(b) separates the local hex set into two parts (Fig. \ref{fig:loop_prop}(c)). The self-intersecting quad set in Fig. \ref{fig:loop_prop}(g) separates the local hex set into 3 subsets (Fig. \ref{fig:loop_prop}h). Meanwhile, the boundary loop of the quad set separates the boundary of the local hex set into $2+n$ subsets, where $n$ is the number of self-intersecting nodes on the boundary loop. The non-self-intersecting boundary loop in Fig. \ref{fig:loop_prop}(a) separates the boundary of the local hex set into two subsets (Fig. \ref{fig:loop_prop}(d)), and the self-intersecting boundary loop in Fig. \ref{fig:loop_prop}(f) separates the boundary of the local hex set into 4 subsets (Fig. \ref{fig:loop_prop}(i)).
@@ -166,18 +174,36 @@ By observation of the structures of valid quad sets and the process of sheet inf
 
 The first characteristic, which is also called local separation, is necessary for a quad set to be inflatable, because the sheet inflation operation is actually done by separating the hex subsets and filling the gaps with new hexahedra, as shown in Fig. \ref{fig:loop_prop}(c), Fig. \ref{fig:loop_prop}(e), Fig. \ref{fig:loop_prop}h and Fig. \ref{fig:loop_prop}(j). It also indicates that the boundary loops must be closed otherwise new hexahedra on the mesh boundary will not be correctly created. The second characteristic also indicates that each intersecting node on the boundary loop needs another intersecting node to be paired in order to determine an intersecting line.
 
-Based on the above analysis, we check whether the specified constraint edges are eligible to be a valid boundary loop. If not, we use the path searching algorithm and max-flow-min-cut algorithm to determine a valid boundary loop. The flowchart of the determination of boundary loops is shown in Fig. \ref{fig:flow_det_loop}. The rest of this section will provide detailed description about the method of the determination of boundary loops.
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{figures/flow_det_loop.png}
+\caption{Flowchart of the determination of boundary loops.}
+\label{fig:flow_det_loop}
+\end{center}
+\end{figure}
+
+Based on the above analysis, we check whether the specified constraint edges are eligible to be a valid boundary loop. If not, we use the path searching algorithm and max-flow-min-cut algorithm to determine a valid boundary loop. Suppose $E$ is the specified constraint edges, the flowchart of the determination of boundary loops is shown in Fig. \ref{fig:flow_det_loop}. The rest of this section will provide detailed description about the method of the determination of boundary loops.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Pairing Intersecting Nodes}
 \label{sec:int_pt_pair}
-For self-intersecting quad sets, the intersecting lines play a very important role in defining the structures of the quad sets. The intersecting nodes on the boundary lines need to be paired in order to construct the intersecting line between each pair of intersecting nodes. It needs decision which two can be paired when there are more than two intersecting nodes. Improper pairing of intersecting nodes will result in non-orientable surface with very poor quality or even no surface at all\cite{Suzuki:2010hn}. Based on the observation of the structures of quadrilateral sets, we introduce two templates for pairing intersecting nodes. By recursively applying these two templates, a proper pairing between intersecting nodes can be achieved. 
+For self-intersecting quad sets, the intersecting lines play a very important role in defining the structures of the quad sets. An intersecting line is a piecewise continuous set of edges interior to the hex mesh, which connect a pair of intersecting nodes. Therefore, the intersecting nodes on the boundary lines need to be paired in order to construct the intersecting line between each pair of intersecting nodes. It needs decision which two can be paired when there are more than two intersecting nodes. Improper pairing of intersecting nodes will result in non-orientable surface with very poor quality or even no surface at all\cite{Suzuki:2010hn}. Based on the observation of the structures of quadrilateral sets, we introduce two local intersecting structures that can be used to pair intersecting nodes. By recursively searching these two local intersecting structures on input the boundary mesh edges, a proper pairing between intersecting nodes can be achieved. 
 
-These two templates come from two simple self-intersecting quad sets as shown in Fig. \ref{fig:int_pair_tpl}(a) and Fig. \ref{fig:int_pair_tpl}(f). These two quad sets both have one intersecting line and two intersecting nodes on their boundary loops. Topological structures of their boundary loops form the two templates as shown in Fig. \ref{fig:int_pair_tpl}(d) and Fig. \ref{fig:int_pair_tpl}(i). If a part of the boundary loop has the same topological structure as either of the two templates, there must be a quad set with the same topological structure of the corresponding simple self-intersecting quad set. This template-based pairing method thus can effectively avoid improper pairing result mentioned in \cite{Suzuki:2010hn}. To recursively find next pair of intersecting nodes, the local topological structures are modified accordingly as shown in Fig. \ref{fig:int_pair_tpl}(e) and Fig. \ref{fig:int_pair_tpl}(j).
+\begin{figure*}[htbp]
+\begin{center}
+\includegraphics[width=17cm]{figures/pair_patterns.png}
+\caption{Two local intersecting structure for pairing intersecting nodes: (a) the 1st local intersecting quad subset; (b) int-4-hex-sets around the 1st local intersecting quad subset; (c) the 1st local intersecting structure of the boundary loop; (d) the pairing information of the 1st local intersecting structure; (e) the 1st local intersecting structure is resolved for recursive searching; (f) the 2nd local intersecting quad subset; (g) int-4-hex-sets around the 2nd local intersecting the quad subset; (h) the 2nd local intersecting structure of the boundary loop; (i) the pairing information of the 2nd local intersecting structure; (j) the 2nd local intersecting structure is resolved for recursive searching.}
+\label{fig:int_pair_tpl}
+\end{center}
+\end{figure*}
 
-Some structures near the intersecting lines or intersecting nodes are very important for determining the quad set. The hexahedra adjacent to the intersecting lines are separated into four subsets by the local structures of quad sets, as shown in Fig. \ref{fig:int_pair_tpl}(b) and Fig. \ref{fig:int_pair_tpl}(g). These hex subsets are called int-4-hex-sets of the intersecting line. The associated local structures of boundary loops are shown in Fig. \ref{fig:int_pair_tpl}(c) and Fig. \ref{fig:int_pair_tpl}(h). The quads of same color mean they are adjacent to the same int-4-hex-set. The numbers in different colors on the two templates in Fig. \ref{fig:int_pair_tpl}(d) and Fig. \ref{fig:int_pair_tpl}(i) indicate the corresponding int-4-hex-sets.
+On various intersecting quad sets, two local intersecting quad subsets are commonly observed which are shown in Fig. \ref{fig:int_pair_tpl}(a) and Fig. \ref{fig:int_pair_tpl}(f). These two quad subsets both have one intersecting line and two intersecting nodes on their boundary loops. The topological structures of their boundary loops are shown in Fig. \ref{fig:int_pair_tpl}(d) and Fig. \ref{fig:int_pair_tpl}(i). Conversely, if a local intersecting structure of the mesh edges is found to share the same topology with either Fig. \ref{fig:int_pair_tpl}(d) or Fig. \ref{fig:int_pair_tpl}(i), there should be a corresponding local intersecting quad subset. Hence, it is reasonable to pair the two intersecting nodes on this local part of the mesh edges, which will not result in improper pairing mentioned in \cite{Suzuki:2010hn}. 
 
-Two examples in Fig. \ref{fig:pair_int_exams} are presented to explain how to pair intersecting nodes by these two templates.
+To recursively find next pair of intersecting nodes, the local topological structures are modified accordingly as shown in Fig. \ref{fig:int_pair_tpl}(e) and Fig. \ref{fig:int_pair_tpl}(j). Currently, we treat these two local intersecting structures equally and use a depth-first strategy to search and handling the two local intersecting structures, which means if we find either local intersecting structure, we pair its two intersecting nodes and resolve it at once until no more intersecting nodes can be handled.
+
+Some structures near the intersecting lines or intersecting nodes are very important for determining the quad set later. The hexahedra adjacent to the intersecting lines are separated into four subsets by the local structures of quad sets, as shown in Fig. \ref{fig:int_pair_tpl}(b) and Fig. \ref{fig:int_pair_tpl}(g). These hex subsets are called int-4-hex-sets of the intersecting line. The associated local structures of boundary loops are shown in Fig. \ref{fig:int_pair_tpl}(c) and Fig. \ref{fig:int_pair_tpl}(h). The quads of same color mean they are adjacent to the same int-4-hex-set. The numbers in different colors on the two local intersecting structures in Fig. \ref{fig:int_pair_tpl}(d) and Fig. \ref{fig:int_pair_tpl}(i) indicate the corresponding int-4-hex-sets.
+
+Two examples in Fig. \ref{fig:pair_int_exams} are presented to explain how to pair intersecting nodes by searching these two local intersecting structures.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -187,7 +213,7 @@ Two examples in Fig. \ref{fig:pair_int_exams} are presented to explain how to pa
 \end{center}
 \end{figure}
 
-The pairing process for the 1st example is shown in Fig. \ref{fig:pair_int_exam1_proc}. Firstly the intersecting nodes $A$ and $B$ are paired by the 1st template. After topological structure is modified, $C$ and $D$ are also paired by the 1st template.
+The pairing process for the 1st example is shown in Fig. \ref{fig:pair_int_exam1_proc}. Firstly the intersecting nodes $A$ and $B$ are paired according to the 1st local intersecting structure. After topological structure is modified, $C$ and $D$ are also paired according the 1st local intersecting structure.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -197,7 +223,7 @@ The pairing process for the 1st example is shown in Fig. \ref{fig:pair_int_exam1
 \end{center}
 \end{figure}
 
-The pairing process for the 2nd example is shown in Fig. \ref{fig:pair_int_exam2_proc}. Firstly the intersecting nodes $A$ and $B$ are paired by the 2nd template. After topological structure is modified, the nodes $C$ and $D$ are paired by the 1st template.
+The pairing process for the 2nd example is shown in Fig. \ref{fig:pair_int_exam2_proc}. Firstly the intersecting nodes $A$ and $B$ are paired according to the 2nd local intersecting structure. After topological structure is modified, the nodes $C$ and $D$ are paired based on the 1st local intersecting structure.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -207,7 +233,7 @@ The pairing process for the 2nd example is shown in Fig. \ref{fig:pair_int_exam2
 \end{center}
 \end{figure}
 
-After recursively applying these two templates, if there is still one intersecting node left unpaired, we use the templates to create a new intersecting node at a appropriate position to be paired with this intersecting node. For example, in Fig. \ref{fig:one_int_pt_left}(a), the intersecting node $A$ is unpaired. We use the 2nd template to create a new intersecting node $B$ to be paired with $A$ as shown in Fig. \ref{fig:one_int_pt_left}(b).
+After recursively searching these two local intersecting structures, if there is still one intersecting node left unpaired, we need to create a new intersecting node at a appropriate position in order to pair these two intersecting node according to the local intersecting structures. For example, in Fig. \ref{fig:one_int_pt_left}(a), the intersecting node $A$ is unpaired. We create a new intersecting node $B$ (Fig. \ref{fig:one_int_pt_left}(b)) that can be paired with $A$ according to the 2nd local intersecting structure. This process can be automatic thanks to the two local intersecting structure which provide us with enough topological information to find the new intersecting node.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -217,14 +243,14 @@ After recursively applying these two templates, if there is still one intersecti
 \end{center}
 \end{figure}
 
-Our algorithm would fail if some intersecting nodes are unable to be paired by the two templates. These boundary loops usually determine non-orientable quad sets\cite{Suzuki:2010hn} which will largely degenerate the mesh quality after sheet inflation. Therefore we do not handle such kind of boundary loops in this paper.
+Our algorithm would fail if some intersecting nodes are unable to be paired according to the two local intersecting structures. These boundary loops usually determine non-orientable quad sets\cite{Suzuki:2010hn} which will largely degenerate the mesh quality after sheet inflation. Therefore we do not handle such kind of boundary loops in this paper.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Forming Closed Boundary Loops}
 \label{sec:close_bound_loop}
 The ability to do local separation requires the constraint edges to form closed loops. Sometimes the constraint edges, which are specified by the user according to specific mesh modification requirements, may not be closed loops. When this happens, we need to close the constraint edges by adding new edges on the mesh boundary. This is done by connecting the dangling edges on the constraint edges using the A* path searching algorithm.
 
-A* path searching is a one-source-one-target path searching algorithm which runs very efficiently. When applying A* algorithm, in addition to considering the count of mesh edges on the path, we also take the angles between adjacent edges on the path into consideration in order to get a smooth path. Figure \ref{fig:close_loop}(b) shows the result when the angles between adjacent edges are not considered, and Fig. \ref{fig:close_loop}(c) shows a better result when the angles are taken into consideration.
+A* path searching is a one-source-one-target path searching algorithm which runs very efficiently\cite{hart1968formal}. When applying A* algorithm, in addition to considering the count of mesh edges on the path, we also take the angles between adjacent edges on the path into consideration in order to get a smooth path. Figure \ref{fig:close_loop}(b) shows the result when the angles between adjacent edges are not considered, and Fig. \ref{fig:close_loop}(c) shows a better result when the angles are taken into consideration.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -241,13 +267,13 @@ After previous sections, the constraint edges specified by the user become a clo
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=6.5cm]{figures/flow_local_separation.png}
+\includegraphics[width=7cm]{figures/flow_local_separation.png}
 \caption{Flowchart of the process of making the boundary loop able to do local separation.}
 \label{fig:flow_local_sep}
 \end{center}
 \end{figure}
 
-The following example illustrates the process. Figure \ref{fig:local_sep_exam}(a) shows the hex mesh containing a through hole and the boundary loop $E$ (red). To check whether $E$ is able to do local separation, we firstly get $E$'s adjacent hex set $H$ (Fig. \ref{fig:local_sep_exam}(b)) and iteratively add $H$'s adjacent hexahedra to $H$ and test whether the new boundary of $H$ can be separated by $E$ into two subsets until reaching the maximum iteration times (Fig. \ref{fig:local_sep_exam}(c)). However, $E$ is still unable to do local separation on $H$ since there are still only one quad set (blue in Fig. \ref{fig:local_sep_exam}(d)) on $H$'s boundary. Hence, we need to use the max-flow-min-cut algorithm to add other necessary mesh edges to $E$ to make it able to do local separation.
+The following example illustrates the process. Figure \ref{fig:local_sep_exam}(a) shows the hex mesh containing a through hole and the boundary loop $E$ (red). To check whether $E$ is able to do local separation, we firstly get $E$'s adjacent hex set $H$ (Fig. \ref{fig:local_sep_exam}(b)) and iteratively add $H$'s adjacent hexahedra to $H$ and test whether the new boundary of $H$ can be separated by $E$ into two subsets before reaching the maximum iteration times (Fig. \ref{fig:local_sep_exam}(c)). However, $E$ is still unable to do local separation on $H$ since there are still only one quad set (blue in Fig. \ref{fig:local_sep_exam}(d)) on $H$'s boundary. Hence, we need to use the max-flow-min-cut algorithm to add other necessary mesh edges to $E$ to make it able to do local separation.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -258,13 +284,13 @@ The following example illustrates the process. Figure \ref{fig:local_sep_exam}(a
 \end{figure}
 
 
-Max-flow-min-cut algorithm is an effective and efficient tool to find the minimal cut set in a directed graph\cite{lawler20014}. 
+Max-flow-min-cut algorithm is an effective and efficient tool to find the minimal cut set in a directed graph\cite{lawler20014}. On a directed graph with weighted edges, i.e. a flow graph, maximum flow is the maximum amount of flow passing from the source (the $s$ node) to the sink (the $t$ node). And the minimum cut is is a cut (a partition of the vertices of a graph into two disjoint subsets) that is minimal in the sum of weights of the edges in the cut. The max-flow-min-cut theorem states that given a flow graph and $s$ and $t$ nodes, the max-flow equals the min-cut. 
 
 As shown in Fig. \ref{fig:max_flow_graph}(a), to use the max-flow-min-cut algorithm, a directed graph should be constructed with an $s$ node and a $t$ node, and the weights of the edges should also be set before calculation. The algorithm will find a minimal cut set that determines the max flow from $s$ to $t$.
 
-If we take the boundary of $H$ as a graph where the nodes stand for a quad or a quad set and the edges stand for the adjacency relationship between the quads or quad sets, then to be able to do local separation is similar to find a cut set on this graph. Hence, the max-flow-min-cut algorithm can be used to help us to find necessary edges to make the boundary loop satisfy the local separation.
+If we take the boundary of $H$ as a graph where the nodes stand for a quad or a quad set and the edges stand for the adjacency relationship between the quads or quad sets, then to be able to do local separation is similar to find a cut set on this graph. Hence, the max-flow-min-cut algorithm can be used to help us to find necessary edges to make the boundary loop satisfy the local separation. The Ford–Fulkerson method is an algorithm that can efficiently compute the maximum flow in a flow graph\cite{ford1956maximal}. In this paper, we use the Ford-Fulkeson method to compute the max-flow-min-cut algorithm.
 
-To use the algorithm, we need to construct the directed graph at first, including constructing the $s$ and $t$ nodes and deciding the edges' weights. As the current boundary loop $E$ must be part of the final boundary loop, the two quad sets on its two sides just can be the $s$ and $t$ nodes as shown in Fig. \ref{fig:max_flow_graph}(b). Since all of the edges on the final boundary loop should be on the boundary of the hex mesh, the quads shared by $H$ and the rest of the hex mesh, which is shown as $Q_{in}$ in Fig. \ref{fig:max_flow_graph}(b), should be accordingly grouped into a single node in the graph to guarantee that $Q_{in}$ won't be separated by the min cut. Similarly, in order to forbid the mesh edges on sharp CAD model edges to be added in to the boundary loop, which usually results in poor mesh quality, we group the quads sharing these mesh edges into a single node, e.g. $q_2$ and $q_3$ in Fig. \ref{fig:max_flow_graph}(c).
+To use the algorithm, we need to construct the directed graph at first, including constructing the $s$ and $t$ nodes and deciding the edges' weights. As the current boundary loop $E$ must be part of the final boundary loop, the two quad sets on its two sides just can be the $s$ and $t$ nodes as shown in Fig. \ref{fig:max_flow_graph}(b). Since all of the edges on the final boundary loop should be on the boundary of the hex mesh, the quads shared by $H$ and the rest of the hex mesh, which is shown as $Q_{in}$ in Fig. \ref{fig:max_flow_graph}(b), should be accordingly grouped into a single node in the graph to guarantee that $Q_{in}$ won't be separated by the min cut. Additionally, mesh edges whose adjacent quads are all boundary quads should not be added into the boundary loop because it usually results in poor mesh quality if the quad set for sheet inflation contains boundary quads. Hence we group the quads sharing these mesh edges into a single node, e.g. $q_2$ and $q_3$ in Fig. \ref{fig:max_flow_graph}(c).
 
 After constructing the nodes, we assign weights to the graph edges according to how many mesh edges are shared by the two nodes. For example, $q_1$ in Fig. \ref{fig:max_flow_graph}(c) shares two edges with node $t$, so the weight of the directed edges in the graph between $q_1$ and $t$ is 2. All of the edges in the graph are bi-directional except the edges adjacent to $s$ and $t$.
 
@@ -296,14 +322,14 @@ This section provides specific details of the determination of the initial quad 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Determination of Intersecting Lines}
 \label{sec:det_int_lines}
-Intersecting lines are very important for defining the structures of self-intersecting quad sets. Before determining the initial quad set, we need to construct the intersecting lines first. In Section \ref{sec:int_pt_pair} the two templates not only make two intersecting nodes be paired but also setup the corresponding relationships between the int-4-quad-sets of the two intersecting nodes. In this section, we use this information to construct the intersecting lines and the int-4-hex-sets of these intersecting lines.
+Intersecting lines, each of which connect a pair of intersecting nodes, are very important for defining the structures of self-intersecting quad sets. Before determining the initial quad set, we need to construct the intersecting lines first. In Section \ref{sec:int_pt_pair} the two local intersecting structures not only make two intersecting nodes be paired but also setup the corresponding relationships between the int-4-quad-sets of the two intersecting nodes. In this section, we use this information to construct the intersecting lines and the int-4-hex-sets of these intersecting lines.
 
-The following example shows the process of constructing the intersecting line and its int-4-hex-sets. In Fig. \ref{fig:det_int_line}(a), the blue nodes are two intersecting nodes paired by the 1st template (in this example they can also be paired by the 2nd template), and the numbers and different colors denote the correspondence between the int-4-quad-sets of the two points. We use A* algorithm to determine the intersecting line between the two intersecting nodes. Similar to Section \ref{sec:close_bound_loop}, in order to get a smooth path, we take the turning angles between adjacent edges in the path into consideration while appling the A* searching. The intersecting line is shown in Fig. \ref{fig:det_int_line}(b). Next, we get all the hexahedra adjacent to the intersecting line, and use the correspondence between the int-4-quad-sets to construct the int-4-hex-sets as shown in Fig. \ref{fig:det_int_line}(c).
+The following example shows the process of constructing the intersecting line and its int-4-hex-sets. In Fig. \ref{fig:det_int_line}(a), the blue nodes are two intersecting nodes paired based on the 1st local intersecting structure (in this example they can also be paired according to the 2nd local intersecting structure), and the numbers and different colors denote the correspondence between the int-4-quad-sets of the two points. We use A* algorithm to determine the intersecting line between the two intersecting nodes. Similar to Section \ref{sec:close_bound_loop}, in order to get a smooth path, we take the turning angles between adjacent edges in the path into consideration while appling the A* searching. The intersecting line is shown in Fig. \ref{fig:det_int_line}(b). Next, we get all the hexahedra adjacent to the intersecting line, and use the correspondence between the int-4-quad-sets to construct the int-4-hex-sets as shown in Fig. \ref{fig:det_int_line}(c) and Fig. \ref{fig:det_int_line}(d).
 
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=9cm]{figures/det_int_line.png}
-\caption{Process of constructing the intersecting line and its int-4-hex-sets: (a) two intersecting nodes paired by the 1st template; (b) the intersecting line determined by A* algorithm; (c) the hexahedra adjacent to the intersecting line; (d) the int-4-hex-sets of the intersecting line.}
+\caption{Process of constructing the intersecting line and its int-4-hex-sets: (a) two intersecting nodes paired based on the 1st local intersecting structure; (b) the intersecting line determined by A* algorithm; (c) the hexahedra adjacent to the intersecting line; (d) the int-4-hex-sets of the intersecting line.}
 \label{fig:det_int_line}
 \end{center}
 \end{figure}
@@ -368,7 +394,7 @@ Although the initial quad set determined by previous section satisfies all the c
 %%%%%%%%%%%%%%%%%%%%
 \subsection{Quality Evaluation of the Quad Set}
 \label{sec:quality_eval_qs}
-In a hex mesh, the valence of a mesh edge stands for the count of its adjacent quads. A mesh edge is called a regular edge if it is inside the mesh or on the mesh boundary and its valence equals 4 or 3 respectively. Otherwise the edge is called an irregular edge. The irregular degree is the difference of valences between one edge and its corresponding regular edge. Suppose $e$ stands for an edge and $v_e$ stands for it valence, the irregular degree of $e$ is computed as Equation \ref{equ:irre_deg}.
+In a hex mesh, the valence of a mesh edge stands for the count of its adjacent quads. A mesh edge is called a regular edge if it is inside the mesh or on the mesh boundary and its valence equals 4 or 3 respectively. Otherwise the edge is called an irregular edge. The irregular degree is the difference of valences between one edge and its corresponding regular edge. Suppose $e$ stands for an edge and $v_e$ stands for its valence, the irregular degree of $e$ is computed as Equation \ref{equ:irre_deg}.
 
 \begin{equation}
 \label{equ:irre_deg}
@@ -453,17 +479,17 @@ The variation of irregular degrees $\Delta V_Q$ of the initial quad set in Fig. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Examples}
 \label{sec:examples}
-We implement our approach in C++ on a 32-bit Windows 7 platform, using Visual Studio 2010. The approach has been tested on different meshes under various constraints. This section presents two practical applications of the approach: one is complex sheets generation for mesh matching and the other one is the quality improvement for the mesh boundary by reducing high node valences.
+We implement our approach in C++ on a 32-bit Windows 7 platform, using Visual Studio 2010. The approach has been tested on different meshes under various constraints. This section presents three practical applications of the approach: one is complex sheets generation for mesh matching and the other two are the quality improvement for the mesh boundary by reducing high node valences.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Complex Sheets Generation for Mesh Matching}
 \label{sec:mesh_matching}
-Mesh matching is an algorithm to convert non-conforming interfaces to conforming ones by sheet operations\cite{Chen:2015kf,Staten2010d}. Our approach in this paper can be used in mesh matching to locally generate complex sheets that intersect themselves multiple times, which cannot be done in these previous works. In Fig. \ref{fig:exam1_input}, there is an unmatched chord on the interface of hex mesh 2 in Fig. \ref{fig:exam1_input}(b). A new sheet needs to be created to match it on hex mesh 1 under the constraints shown in Fig. \ref{fig:exam1_input}a ($H$ is the volumetric constraints).
+Mesh matching is an algorithm to convert non-conforming interfaces to conforming ones by sheet operations\cite{Staten2010d, Chen:2015kf}. Our approach in this paper can be used in mesh matching to locally generate complex sheets that intersect themselves multiple times, which cannot be done in these previous works. In Fig. \ref{fig:exam1_input}, there is an unmatched chord on the interface of hex mesh $M_a$ in Fig. \ref{fig:exam1_input}(b). A new sheet needs to be created to match it on hex mesh $M_b$ under the constraints shown in Fig. \ref{fig:exam1_input}a ($H$ is the volumetric constraints).
 
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=8cm]{figures/exam1_input.png}
-\caption{Complex sheet inflation is needed for mesh matching: (a) the constraints for sheet inflation on mesh 1; (b) the unmatched chord(red) on mesh 2.}
+\caption{Complex sheet inflation is needed for mesh matching: (a) the constraints for sheet inflation on mesh $M_a$; (b) the unmatched chord(red) on mesh $M_b$.}
 \label{fig:exam1_input}
 \end{center}
 \end{figure}
@@ -501,9 +527,9 @@ The new sheet is inflated from the quad set as shown in Fig. \ref{fig:exam1_shee
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{High Edge Valences Reduction}
 \label{sec:red_edge_val}
-In hex meshes, the elements in the area near the boundary are usually very important for finite element analysis\cite{Kowalski2011}. Meanwhile, the node valence and edge valence are critical for the quality of the quad mesh and hex mesh respectively\cite{Owen1998, Staten2010d,Tarini2010}. High node valence or edge valence will largely reduce the accuracy and efficiency of the analysis, or even make the mesh unable to be handled by the solver. The fun sheet matching algorithm proposed by Kowalski et al. \cite{Kowalski2011} can help the hex mesh capture the geometric boundary by inserting fundamental sheets. This algorithm, however, can neither improve the node valences on the mesh boundary nor the edge valence near the mesh boundary. In this example, we will show how our approach can be used to reduce the high node valences and edge valences near the mesh boundary.
+In hex meshes, the elements in the area near the boundary are usually very important for finite element analysis\cite{Kowalski2011}. Meanwhile, the node valence and edge valence are critical for the quality of the quad mesh and hex mesh respectively\cite{Owen1998, Staten2010d,Tarini2010}. High node valence or edge valence will largely reduce the accuracy and efficiency of the analysis, or even make the mesh unable to be handled by the solver. The fun sheet matching algorithm proposed by Kowalski et al. \cite{Kowalski2011} can help the hex mesh capture the geometric boundary by inserting fundamental sheets. This algorithm, however, can neither improve the node valences on the mesh boundary nor the edge valence near the mesh boundary. In this section, we present two examples to show how our approach can be used to reduce the high node valences and edge valences near the mesh boundary.
 
-Figure \ref{fig:exam2_input}(a) shows two nodes $v_1$ and $v_2$ with high valences. The valences of $v_1$ and $v_2$ are 6 and 7 respectively. Consequently, the edges inside the hex mesh that are adjacent to these two nodes also have high valences which are 6 and 7 respectively as shown in Fig. \ref{fig:exam2_input}(b). It is usually unacceptable for node or edge valences to be larger than 5 near the boundary. Therefore, these high valences need to be reduced.
+Figure \ref{fig:exam2_input}(a) shows a hex mesh that contains two boundary nodes $v_1$ and $v_2$ with high valences. The valences of $v_1$ and $v_2$ are 6 and 7 respectively. Consequently, the edges inside the hex mesh that are adjacent to these two nodes also have high valences which are 6 and 7 respectively as shown in Fig. \ref{fig:exam2_input}(b). It is usually unacceptable for node or edge valences to be larger than 5 near the boundary. Therefore, these high valences need to be reduced.
 
 \begin{figure}[htbp]
 \begin{center}
@@ -543,13 +569,39 @@ The sheet inflation is conducted after getting the quad set. The new sheet is sh
 \end{center}
 \end{figure}
 
+We have also tested our algorithm on the hex mesh of the famous Stanford Bunny. In Fig. \ref{fig:bunny_input}, the hex mesh of Stanford Bunny contains two high-valence boundary nodes. Sheet inflation is conducted to create a self-intersecting sheet to reduce the high node valences. The major procedures are shown in Fig. \ref{fig:bunny_proc}. The modification result in Fig. \ref{fig:bunny_result} shows that our algorithm can effectively reduce the high node valences.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{rev_figures/bunny_input.png}
+\caption{Hex mesh of Stanford Bunny with two high-valence boundary nodes.}
+\label{fig:bunny_input}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{rev_figures/bunny_proc.png}
+\caption{Process of reducing the high node valences on Stanford Bunny: (a) several boundary edges adjacent to the high-valence nodes are selected as boundary constraints; (b) the boundary loop is constructed; (c) the quad set is constructed; (d) the new sheet is inflated.}
+\label{fig:bunny_proc}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=8cm]{rev_figures/bunny_result.png}
+\caption{The high node valences are reduced by conducting our sheet inflation.}
+\label{fig:bunny_result}
+\end{center}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions and Future Work}
 In this paper, a new approach is proposed to achieving optimized complex sheet inflation under various constraints. Main features of our approach are summarized:
 
 \begin{enumerate}
   \item By using A* and max-flow-min-cut algorithms, the valid boundary loop of the quad set for sheet inflation is effectively determined, which satisfies the boundary constraints.
-  \item With intersecting nodes on the boundary loop being reasonably paired by using two templates, intersecting lines are validly constructed between each pair of nodes by using A* algorithm, and the int-4-hex-sets are determined around the intersecting lines, enabling our approach to effectively construct complex quad sets that intersect themselves more than once.
+  \item With intersecting nodes on the boundary loop being reasonably paired by recursively searching two local intersecting structures, intersecting lines are validly constructed between each pair of nodes by using A* algorithm, and the int-4-hex-sets are determined around the intersecting lines, enabling our approach to effectively construct complex quad sets that intersect themselves more than once.
   \item By using max-flow-min-cut algorithm, the valid initial quad set is effectively and efficiently determined within the local region specified by the user.
   \item A chord-based optimization method is proposed which can effectively improve the quality of the quad set while avoiding the difficulty in optimizing the quad set as a whole.
 \end{enumerate}
