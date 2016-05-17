@@ -21,15 +21,15 @@
 
 \title{An approach to achieving optimized complex sheet inflation under constraints}
 
-%\author[1]{Jinming Chen}
-%\author[1]{Shuming Gao\corref{cor1}}
-%\author[1]{Rui Wang}
-%\author[1]{Haiyan Wu}
-%\cortext[cor1]{Corresponding author. Email: smgao@cad.zju.edu.cn}
-%\address[1]{CAD\&CG State Key Laboratory, Zhejiang University, Hangzhou, China}
+\author[1]{Jinming Chen}
+\author[1]{Shuming Gao\corref{cor1}}
+\author[1]{Rui Wang}
+\author[1]{Haiyan Wu}
+\cortext[cor1]{Corresponding author. Email: smgao@cad.zju.edu.cn}
+\address[1]{CAD\&CG State Key Laboratory, Zhejiang University, Hangzhou, China}
 
 \begin{abstract}
-Sheet inflation is an enhanced and more general version of the classic pillowing procedure\cite{Mitchell:1995wa} used to modify hexahedrdal meshes. The flexibility of sheet inflation makes it a valuable tool for hex mesh generation, modification and topology optimization. However, it is still difficult to generate self-intersecting sheet within a local region while assuring the mesh quality. This paper proposes an approach to achieving optimized complex sheet inflation under various constraints. The approach can generate complex sheets that intersect themselves more than once and guarantee the quality of the resultant mesh. We successfully apply this approach to mesh matching and mesh boundary optimizing.
+Sheet inflation is an enhanced and more general version of the classic pillowing procedure\cite{Mitchell:1995wa} used to modify hexahedrdal meshes. The flexibility of sheet inflation makes it a valuable tool for hex mesh generation, modification and topology optimization. However, it is still difficult to generate self-intersecting sheet within a local region while assuring the mesh quality. This paper proposes an approach to achieving optimized complex sheet inflation under various constraints. The approach can generate complex sheets that intersect themselves more than once and maximize the quality of the resultant mesh. We successfully apply this approach to mesh matching and mesh boundary optimizing.
 \end{abstract}
 
 \begin{keyword}
@@ -39,7 +39,7 @@ hex mesh; sheet inflation; mesh optimization; mesh modification; mesh matching
 
 \end{frontmatter}
 
-\linenumbers
+%\linenumbers
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
@@ -138,7 +138,7 @@ In this paper, an approach is proposed to achieving complex sheet inflation unde
 \end{center}
 \end{figure*}
 
-Our approach needs to solve two critical problems. The first problem is how to construct the valid boundary loop and initial quad set satisfying various boundary constraints. Boundary constraints specified by the user can be either a loop or just a set of edges, a set of edges, and can be non-self-intersecting or intersecting itself more than once. The second problem is how to effectively optimize the initial quad set when a global optimal result can hardly be reached.
+Our approach needs to solve two critical problems. The first problem is how to construct the valid boundary loop and initial quad set satisfying various boundary constraints. Boundary constraints specified by the user can be either a loop or just a set of edges, and can be non-self-intersecting or intersecting itself more than once. The second problem is how to effectively optimize the initial quad set when a global optimal result can hardly be reached.
 
 To solve these two problems, our basic ideas are:
 \begin{enumerate}
@@ -449,7 +449,7 @@ IV(e) =
  \end{cases}
 \end{equation}
 
-A mesh edge is called a regular edge if its edge valence is not ideal. Otherwise it is called an irregular edge. The irregular degree is the difference of valences between one edge and its corresponding regular edge. Suppose $v_e$ stands for a mesh edge $e$'s valence, the irregular degree of $e$ is computed as Equation \ref{equ:irre_deg}.
+A mesh edge is called a regular edge if its edge valence is ideal. Otherwise it is called an irregular edge. The irregular degree is the difference of valences between one edge and its corresponding regular edge. Suppose $v_e$ stands for a mesh edge $e$'s valence, the irregular degree of $e$ is computed as Equation \ref{equ:irre_deg}.
 
 \begin{equation}
 \label{equ:irre_deg}
@@ -468,12 +468,25 @@ When creating new sheets, different quad sets have different impact on the quali
 \end{center}
 \end{figure}
 
-Suppose $e$ is an edge on quad set $Q$, and $Q$ separates $e$'s adjacent hexahedra into two subsets $H_1$ and $H_2$, then the variation between the irregular degrees of $e$ and two edges splitted from $e$ can be computed by Equation \ref{equ:dif_irre_deg}. $\left \| H_1 \right \|$ and $\left \| H_2 \right \|$ represent the numbers of hexahedra in $H_1$ and $H_2$ respectively. A negative $\Delta V_e$ means the mesh quality near $e$ has been improved by the inflation, otherwise the mesh quality becomes worse. For example, in Fig. \ref{fig:quality_impact_qs}(d), $IV(e_4)=4$, so $ID(e)=0$. $\left \| H_1 \right \| = 1$ and $\left \| H_2 \right \| = 3$, so $\Delta V_e=3+1-0=4$. $\Delta V_e > 0$ means that this inflation makes the mesh quality worse. Note that we do not need to explicitly calculate the irregular degrees of $e_5$ and $e_6$ since they are implicitly involved in $\left \| H_1 \right \|$ and $\left \| H_2 \right \|$.
+Suppose $e$ is an edge on quad set $Q$, and $Q$ separates $e$'s adjacent hexahedra into two subsets $H_1$ and $H_2$, and the two new edges created by splitting $e$ are $e'$ and $e''$, then the variation between the irregular degrees of $e$ and two new edges can be computed by Equ. \ref{equ:dif_irre_deg}. $\left \| H_1 \right \|$ and $\left \| H_2 \right \|$ represent the numbers of hexahedra in $H_1$ and $H_2$ respectively. 
 
 \begin{equation}
 \label{equ:dif_irre_deg}
-\Delta V_e=\left \| H_1 \right \| + \left \| H_2 \right \|-ID(e)
+\begin{aligned}
+\Delta V_e &= ID(e') + ID(e'') - ID(e) \\
+&= |\left \| H_1 \right \| + 2 - IV(e')| + |\left \| H_2 \right \| + 2 - IV(e'')| - ID(e)
+\end{aligned}
 \end{equation}
+
+$IV(e')$ and $IV(e'')$ are usually equal to $IV(e)$ as we try to prevent the quad set from containing mesh edges that reside on the geometric edges in Section \ref{sec:det_init_quad_set}. Therefore, Equ. \ref{equ:dif_irre_deg} can be changed to Equ. \ref{equ:dif_irre_deg_sim} which removes the dependence on the information of the two new edges. This means that we can directly evaluate the quality of the quad set without conducting the real inflation.
+
+\begin{equation}
+\label{equ:dif_irre_deg_sim}
+\Delta V_e = |\left \| H_1 \right \| + 2 - IV(e)| + |\left \| H_2 \right \| + 2 - IV(e)| - ID(e)
+\end{equation}
+
+
+A negative $\Delta V_e$ means the mesh quality near $e$ has been improved by the inflation, otherwise the mesh quality becomes worse. For example, in Fig. \ref{fig:quality_impact_qs}(d), $IV(e_4)=4$, so $ID(e)=0$. $\left \| H_1 \right \| = 1$ and $\left \| H_2 \right \| = 3$, so $\Delta V_e=|1 + 2 - 4| + |3 + 2 - 4| - 0 = 2$. $\Delta V_e > 0$ means that this inflation makes the mesh quality worse. 
 
 If $Q$ is non-self-intersecting, $E=\{e_1,e_2,\cdots,e_n\}$ is the set of edges on $Q$ where $n$ is the count of the edges, $Q$'s variation of irregular degrees $\Delta V_Q$ can then be computed by Equation \ref{equ:qs_dif_irre_deg}.
 
@@ -527,7 +540,7 @@ The variation of irregular degrees $\Delta V_Q$ of the initial quad set in Fig. 
 
 The variation of irregular degrees $\Delta V_Q$ of the initial quad set in Fig. \ref{fig:qs_opt2}(a) is 76, and it becomes 56 after optimization which is 20 smaller.
 
-If the quad set is self-intersecting, we first split it into quad subsets at the intersecting line. For example, in Fig. \ref{fig:opt_int_quad_sets}, we separate the quad set into $QS_1$ and $QS_2$ (Fig. \ref{fig:opt_int_quad_sets}(b)). Then we apply the above optimization algorithm on these quad subsets successively. The quads adjacent to the intersecting line(Fig. \ref{fig:opt_int_quad_sets}(c)) should keep unchanged in order to keep the topology valid.
+If the quad set is self-intersecting, we first split it into quad subsets at the intersecting line. For example, in Fig. \ref{fig:opt_int_quad_sets}, we separate the quad set into $QS_1$ and $QS_2$ (Fig. \ref{fig:opt_int_quad_sets}(b)). Then we apply the above optimization algorithm on these quad subsets separately. The quads adjacent to the intersecting line(Fig. \ref{fig:opt_int_quad_sets}(c)) should keep unchanged in order to keep the topology valid.
 
 \begin{figure}[htbp]
 \begin{center}
